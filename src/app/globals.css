@@ -1,59 +1,91 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap');
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
+/*
+  AI Food & Nutrition Waste Reducer - Design System
+  Exhibition-friendly, bright, and educational design
+  All colors in HSL format for consistency
 */
 
 :root {
-  /* Pure white background with crisp black text */
+  /* Font System */
+  --font-primary: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-heading: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+
+  /* Exhibition Color Palette - Bright & Educational */
   --background: 0 0% 100%;
-  --foreground: 0 0% 0%;
+  --foreground: 220 20% 15%;
 
-  /* Clean white cards with black text */
+  /* Vibrant Green - Healthy / Low Waste */
+  --color-healthy: 142 76% 45%;
+  --color-healthy-light: 142 76% 95%;
+  --color-healthy-foreground: 0 0% 100%;
+
+  /* Sunny Yellow - Moderate */
+  --color-moderate: 45 95% 55%;
+  --color-moderate-light: 45 95% 95%;
+  --color-moderate-foreground: 220 20% 15%;
+
+  /* Coral Red - High Calories / High Waste */
+  --color-high: 6 78% 57%;
+  --color-high-light: 6 78% 95%;
+  --color-high-foreground: 0 0% 100%;
+
+  /* Mint Green Accent - Background gradients */
+  --color-mint: 160 60% 92%;
+  --color-mint-dark: 160 60% 85%;
+
+  /* Clean white cards with subtle shadows */
   --card: 0 0% 100%;
-  --card-foreground: 0 0% 0%;
+  --card-foreground: 220 20% 15%;
 
-  /* Popovers with white background */
-  --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 0%;
-
-  /* Primary: Black with white text */
-  --primary: 0 0% 0%;
+  /* Primary: Vibrant Green for main actions */
+  --primary: 142 76% 45%;
   --primary-foreground: 0 0% 100%;
 
-  /* Secondary: Light gray background with black text */
-  --secondary: 0 0% 97%;
-  --secondary-foreground: 0 0% 0%;
+  /* Secondary: Soft mint for supporting elements */
+  --secondary: 160 60% 92%;
+  --secondary-foreground: 220 20% 15%;
 
-  /* Muted: Subtle gray with darker text */
-  --muted: 0 0% 96%;
-  --muted-foreground: 0 0% 40%;
+  /* Muted: Subtle backgrounds */
+  --muted: 220 15% 96%;
+  --muted-foreground: 220 15% 45%;
 
-  /* Accent: Light gray */
-  --accent: 0 0% 96%;
-  --accent-foreground: 0 0% 0%;
+  /* Accent: Sunny yellow for highlights */
+  --accent: 45 95% 55%;
+  --accent-foreground: 220 20% 15%;
 
-  /* Destructive: Clean red */
-  --destructive: 0 70% 50%;
+  /* Destructive: Coral red for warnings */
+  --destructive: 6 78% 57%;
   --destructive-foreground: 0 0% 100%;
 
-  /* Borders: Subtle gray */
-  --border: 0 0% 90%;
-  --input: 0 0% 90%;
-  --ring: 0 0% 0%;
+  /* Borders: Soft gray */
+  --border: 220 15% 88%;
+  --input: 220 15% 88%;
+  --ring: 142 76% 45%;
 
-  /* Minimal rounded corners */
-  --radius: 0.375rem;
+  /* Rounded corners for friendly design */
+  --radius: 0.5rem;
 
-  /* Sidebar: Clean white with black text */
+  /* Shadow depths for cards */
+  --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.08);
+  --shadow-md: 0 4px 12px 0 rgb(0 0 0 / 0.12);
+  --shadow-lg: 0 8px 24px 0 rgb(0 0 0 / 0.15);
+
+  /* Popover styling */
+  --popover: 0 0% 100%;
+  --popover-foreground: 220 20% 15%;
+
+  /* Sidebar (if needed) */
   --sidebar-background: 0 0% 100%;
-  --sidebar-foreground: 0 0% 0%;
-  --sidebar-primary: 0 0% 0%;
+  --sidebar-foreground: 220 20% 15%;
+  --sidebar-primary: 142 76% 45%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 0 0% 96%;
-  --sidebar-accent-foreground: 0 0% 0%;
-  --sidebar-border: 0 0% 90%;
-  --sidebar-ring: 0 0% 0%;
+  --sidebar-accent: 160 60% 92%;
+  --sidebar-accent-foreground: 220 20% 15%;
+  --sidebar-border: 220 15% 88%;
+  --sidebar-ring: 142 76% 45%;
 }
 
 .dark {
@@ -168,30 +200,185 @@ All colors MUST be HSL.
   border-color: hsl(var(--border));
 }
 
+/* Universal box-sizing */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* HTML base setup */
+html {
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+/* Body styling with exhibition-friendly design */
 body {
-  background-color: hsl(var(--background));
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(135deg, hsl(var(--background)) 0%, hsl(var(--color-mint)) 100%);
+  background-attachment: fixed;
   color: hsl(var(--foreground));
+  font-family: var(--font-primary);
+  font-size: 16px;
+  line-height: 1.6;
   font-feature-settings: "rlig" 1, "calt" 1;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
 }
 
-/* Minimal, clean typography */
+/* Typography Scale - Exhibition-friendly */
 h1, h2, h3, h4, h5, h6 {
-  font-weight: 600;
+  font-family: var(--font-heading);
+  font-weight: 700;
   letter-spacing: -0.025em;
   color: hsl(var(--foreground));
+  margin: 0;
+  line-height: 1.2;
 }
 
-/* Clean button styles */
+h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.875rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+}
+
+h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.625rem;
+}
+
+h5 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+h6 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+/* Text elements */
+p {
+  margin: 0 0 1rem 0;
+  line-height: 1.7;
+}
+
+a {
+  color: hsl(var(--primary));
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: hsl(var(--color-healthy));
+  text-decoration: underline;
+}
+
+strong, b {
+  font-weight: 600;
+}
+
+em, i {
+  font-style: italic;
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.875em;
+  padding: 0.125rem 0.25rem;
+  background: hsl(var(--muted));
+  border-radius: 0.25rem;
+}
+
+/* Button defaults - Exhibition-friendly */
 button {
-  font-weight: 500;
+  font-family: var(--font-primary);
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  box-shadow: var(--shadow-sm);
 }
 
-/* Subtle shadows for depth */
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+button:active {
+  transform: translateY(0);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Form element defaults */
+input, select, textarea {
+  font-family: var(--font-primary);
+  font-size: 1rem;
+  padding: 0.75rem;
+  border: 2px solid hsl(var(--input));
+  border-radius: var(--radius);
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 3px hsla(var(--ring) / 0.1);
+}
+
+select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23334155' d='M4 6l4 4 4-4z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2.5rem;
+}
+
+label {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: hsl(var(--foreground));
+  display: block;
+  margin-bottom: 0.375rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+/* Shadow utilities */
 .shadow-sm {
-  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  box-shadow: var(--shadow-sm);
 }
 
 .shadow {
@@ -199,5 +386,110 @@ button {
 }
 
 .shadow-md {
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  box-shadow: var(--shadow-md);
+}
+
+.shadow-lg {
+  box-shadow: var(--shadow-lg);
+}
+
+/* Color coding utility classes */
+.status-healthy {
+  background: hsl(var(--color-healthy-light));
+  color: hsl(var(--color-healthy));
+  border-left: 4px solid hsl(var(--color-healthy));
+}
+
+.status-moderate {
+  background: hsl(var(--color-moderate-light));
+  color: hsl(var(--color-moderate-foreground));
+  border-left: 4px solid hsl(var(--color-moderate));
+}
+
+.status-high {
+  background: hsl(var(--color-high-light));
+  color: hsl(var(--color-high));
+  border-left: 4px solid hsl(var(--color-high));
+}
+
+/* Card component defaults */
+.card {
+  background: hsl(var(--card));
+  border-radius: calc(var(--radius) * 1.5);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+/* Animation utilities */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}
+
+.animate-slideIn {
+  animation: slideIn 0.4s ease-out;
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+  }
+
+  h3 {
+    font-size: 1.375rem;
+  }
+
+  button {
+    min-height: 44px;
+    padding: 0.625rem 1.25rem;
+  }
 }

@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌱 AI Food & Nutrition Waste Reducer</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #ffffff 0%, #d1fae5 100%);
+            background-attachment: fixed;
+            color: #1e293b;
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(to right, #059669, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-center;
+            margin-bottom: 2rem;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+
+        .legend-item {
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .legend-healthy { background: #d1fae5; color: #059669; }
+        .legend-moderate { background: #fef3c7; color: #d97706; }
+        .legend-high { background: #fee2e2; color: #dc2626; }
+
+        .meal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .meal-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .meal-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        }
+
+        .meal-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .meal-card p {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            background: white;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .nutrition-preview {
+            margin-top: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            border-left: 4px solid;
+        }
+
+        .status-healthy {
+            background: #d1fae5;
+            color: #059669;
+            border-color: #10b981;
+        }
+
+        .status-moderate {
+            background: #fef3c7;
+            color: #d97706;
+            border-color: #f59e0b;
+        }
+
+        .status-high {
+            background: #fee2e2;
+            color: #dc2626;
+            border-color: #ef4444;
+        }
+
+        .calculate-btn {
+            display: block;
+            margin: 2rem auto;
+            padding: 1.25rem 3rem;
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #10b981, #059669);
+            color: white;
+            border: none;
+            border-radius: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .calculate-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.4);
+        }
+
+        .calculate-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .results {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .results.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-card {
+            padding: 1.5rem;
+            border-radius: 1rem;
+            color: white;
+            text-align: center;
+        }
+
+        .summary-card h4 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-green { background: linear-gradient(135deg, #10b981, #059669); }
+        .card-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        .card-yellow { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        .card-purple { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+
+        .table-container {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            overflow-x: auto;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+        }
+
+        th {
+            font-weight: 600;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        td {
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-healthy { background: #d1fae5; color: #059669; }
+        .badge-moderate { background: #fef3c7; color: #d97706; }
+        .badge-high { background: #fee2e2; color: #dc2626; }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-card h3 {
+            margin-bottom: 1rem;
+        }
+
+        canvas {
+            max-height: 300px;
+        }
+
+        .suggestions {
+            background: white;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .suggestion-item {
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-radius: 0.5rem;
+            border-left: 4px solid;
+        }
+
+        .suggestion-high {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+
+        .suggestion-medium {
+            background: #fef3c7;
+            border-color: #f59e0b;
+        }
+
+        .suggestion-low {
+            background: #dbeafe;
+            border-color: #3b82f6;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: white;
+            color: #1e293b;
+            border: 2px solid #e2e8f0;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .back-btn:hover {
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .meal-grid { grid-template-columns: 1fr; }
+            .charts-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Input Section -->
+        <div id="inputSection">
+            <div class="header">
+                <h1>🌱 AI Food & Nutrition Waste Reducer</h1>
+                <p style="font-size: 1.125rem; color: #64748b;">Enter your meals to see nutrition info, estimated food waste, and healthy alternatives</p>
+
+                <div class="legend">
+                    <span class="legend-item legend-healthy">🟢 Green = Healthy / Low Waste</span>
+                    <span class="legend-item legend-moderate">🟡 Yellow = Moderate</span>
+                    <span class="legend-item legend-high">🔴 Red = High Calories / High Waste</span>
+                </div>
+            </div>
+
+            <div class="meal-grid">
+                <div class="meal-card">
+                    <h3>🌅 Breakfast</h3>
+                    <p>Start your day right</p>
+                    <select id="breakfast" onchange="updatePreview('breakfast')">
+                        <option value="">-- Choose --</option>
+                    </select>
+                    <div id="breakfast-preview"></div>
+                </div>
+
+                <div class="meal-card">
+                    <h3>🍛 Lunch</h3>
+                    <p>Midday nutrition</p>
+                    <select id="lunch" onchange="updatePreview('lunch')">
+                        <option value="">-- Choose --</option>
+                    </select>
+                    <div id="lunch-preview"></div>
+                </div>
+
+                <div class="meal-card">
+                    <h3>🌙 Dinner</h3>
+                    <p>Evening meal</p>
+                    <select id="dinner" onchange="updatePreview('dinner')">
+                        <option value="">-- Choose --</option>
+                    </select>
+                    <div id="dinner-preview"></div>
+                </div>
+
+                <div class="meal-card">
+                    <h3>🍿 Snacks</h3>
+                    <p>Healthy munchies</p>
+                    <select id="snack" onchange="updatePreview('snack')">
+                        <option value="">-- Choose --</option>
+                    </select>
+                    <div id="snack-preview"></div>
+                </div>
+            </div>
+
+            <button class="calculate-btn" onclick="calculateResults()">🧮 Calculate Nutrition & Waste</button>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="results">
+            <div class="header">
+                <h1>📊 Your Nutrition & Waste Analysis</h1>
+                <p style="font-size: 1.125rem; color: #64748b;">Comprehensive breakdown of your daily meals</p>
+            </div>
+
+            <div class="summary-grid">
+                <div class="summary-card card-green">
+                    <div style="font-size: 2rem;">🔥</div>
+                    <h4 id="totalCalories">0</h4>
+                    <p>Total Calories</p>
+                </div>
+                <div class="summary-card card-blue">
+                    <div style="font-size: 2rem;">💪</div>
+                    <h4 id="totalProtein">0g</h4>
+                    <p>Total Protein</p>
+                </div>
+                <div class="summary-card card-yellow">
+                    <div style="font-size: 2rem;">♻️</div>
+                    <h4 id="totalWaste">0g</h4>
+                    <p>Total Waste</p>
+                </div>
+                <div class="summary-card card-purple">
+                    <div style="font-size: 2rem;">🍽️</div>
+                    <h4 id="mealCount">0</h4>
+                    <p>Meals Tracked</p>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <h2 style="margin-bottom: 1rem;">Meal-wise Breakdown</h2>
+                <table id="resultsTable">
+                    <thead>
+                        <tr>
+                            <th>Meal</th>
+                            <th>Food Item</th>
+                            <th>Calories</th>
+                            <th>Protein</th>
+                            <th>Carbs</th>
+                            <th>Fats</th>
+                            <th>Waste</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3>Nutrient Distribution</h3>
+                    <canvas id="pieChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Food Waste by Meal</h3>
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+
+            <div class="suggestions">
+                <h2 style="margin-bottom: 1rem;">🤖 AI Recommendations</h2>
+                <div id="suggestionsList"></div>
+            </div>
+
+            <div style="text-align: center;">
+                <button class="back-btn" onclick="resetApp()">🔄 Try Different Meals</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Food Database
+        const foodDatabase = {
+            breakfast: [
+                { id: 'idli_2_pieces', name: 'Idli (2 pieces) with Sambar', calories: 120, protein: 4, carbs: 22, fats: 1, waste: 15, healthScore: 'healthy' },
+                { id: 'dosa_plain', name: 'Plain Dosa with Chutney', calories: 168, protein: 4, carbs: 28, fats: 4, waste: 20, healthScore: 'healthy' },
+                { id: 'masala_dosa', name: 'Masala Dosa', calories: 280, protein: 6, carbs: 42, fats: 9, waste: 25, healthScore: 'moderate' },
+                { id: 'poha', name: 'Poha (Beaten Rice)', calories: 250, protein: 5, carbs: 45, fats: 5, waste: 18, healthScore: 'moderate' },
+                { id: 'upma', name: 'Upma (Semolina)', calories: 200, protein: 5, carbs: 35, fats: 4, waste: 12, healthScore: 'healthy' },
+                { id: 'paratha_aloo', name: 'Aloo Paratha with Curd', calories: 320, protein: 7, carbs: 45, fats: 12, waste: 30, healthScore: 'moderate' },
+                { id: 'bread_butter_jam', name: 'Bread with Butter & Jam', calories: 280, protein: 6, carbs: 40, fats: 10, waste: 10, healthScore: 'moderate' },
+                { id: 'omelette_bread', name: 'Omelette (2 eggs) with Bread', calories: 310, protein: 18, carbs: 25, fats: 15, waste: 8, healthScore: 'healthy' }
+            ],
+            lunch: [
+                { id: 'rice_dal', name: 'Rice with Dal (Lentils)', calories: 350, protein: 12, carbs: 65, fats: 4, waste: 25, healthScore: 'healthy' },
+                { id: 'roti_vegetables', name: 'Roti (3 pieces) with Vegetables', calories: 380, protein: 10, carbs: 58, fats: 10, waste: 30, healthScore: 'healthy' },
+                { id: 'chapati_dal', name: 'Chapati (3 pieces) with Dal', calories: 360, protein: 14, carbs: 62, fats: 5, waste: 22, healthScore: 'healthy' },
+                { id: 'rice_sambar', name: 'Rice with Sambar', calories: 340, protein: 10, carbs: 64, fats: 3, waste: 28, healthScore: 'healthy' },
+                { id: 'pulao', name: 'Vegetable Pulao', calories: 420, protein: 8, carbs: 72, fats: 9, waste: 35, healthScore: 'moderate' },
+                { id: 'biryani_veg', name: 'Vegetable Biryani', calories: 480, protein: 10, carbs: 78, fats: 12, waste: 40, healthScore: 'moderate' },
+                { id: 'biryani_chicken', name: 'Chicken Biryani', calories: 580, protein: 28, carbs: 70, fats: 18, waste: 50, healthScore: 'high' },
+                { id: 'chole_bhature', name: 'Chole Bhature', calories: 620, protein: 15, carbs: 85, fats: 22, waste: 45, healthScore: 'high' },
+                { id: 'rajma_rice', name: 'Rajma with Rice', calories: 400, protein: 15, carbs: 68, fats: 6, waste: 32, healthScore: 'healthy' },
+                { id: 'paneer_butter_masala', name: 'Paneer Butter Masala with Roti', calories: 520, protein: 18, carbs: 45, fats: 28, waste: 38, healthScore: 'high' }
+            ],
+            dinner: [
+                { id: 'khichdi', name: 'Khichdi with Vegetables', calories: 280, protein: 9, carbs: 50, fats: 4, waste: 20, healthScore: 'healthy' },
+                { id: 'dal_rice', name: 'Dal with Rice', calories: 340, protein: 11, carbs: 62, fats: 4, waste: 25, healthScore: 'healthy' },
+                { id: 'roti_curry', name: 'Roti (2 pieces) with Vegetable Curry', calories: 320, protein: 8, carbs: 52, fats: 8, waste: 28, healthScore: 'healthy' },
+                { id: 'fried_rice', name: 'Vegetable Fried Rice', calories: 450, protein: 9, carbs: 75, fats: 12, waste: 40, healthScore: 'moderate' },
+                { id: 'noodles_veg', name: 'Vegetable Noodles', calories: 420, protein: 10, carbs: 68, fats: 11, waste: 35, healthScore: 'moderate' },
+                { id: 'pasta', name: 'Pasta with Sauce', calories: 380, protein: 12, carbs: 62, fats: 9, waste: 30, healthScore: 'moderate' },
+                { id: 'pizza_slice', name: 'Pizza (2 slices)', calories: 540, protein: 20, carbs: 58, fats: 24, waste: 15, healthScore: 'high' },
+                { id: 'burger_veg', name: 'Vegetable Burger with Fries', calories: 580, protein: 14, carbs: 72, fats: 26, waste: 25, healthScore: 'high' }
+            ],
+            snack: [
+                { id: 'pakora', name: 'Pakora (6 pieces)', calories: 280, protein: 6, carbs: 32, fats: 14, waste: 20, healthScore: 'moderate' },
+                { id: 'samosa', name: 'Samosa (2 pieces)', calories: 308, protein: 5, carbs: 38, fats: 15, waste: 12, healthScore: 'moderate' },
+                { id: 'vada_pav', name: 'Vada Pav', calories: 290, protein: 7, carbs: 40, fats: 11, waste: 15, healthScore: 'moderate' },
+                { id: 'bhel_puri', name: 'Bhel Puri', calories: 220, protein: 5, carbs: 35, fats: 7, waste: 18, healthScore: 'moderate' },
+                { id: 'maggi_noodles', name: 'Maggi Noodles', calories: 310, protein: 8, carbs: 46, fats: 11, waste: 8, healthScore: 'moderate' },
+                { id: 'sandwich_veg', name: 'Vegetable Sandwich', calories: 250, protein: 8, carbs: 38, fats: 7, waste: 12, healthScore: 'healthy' },
+                { id: 'biscuits', name: 'Biscuits (4-5 pieces)', calories: 200, protein: 3, carbs: 28, fats: 8, waste: 2, healthScore: 'moderate' },
+                { id: 'chips', name: 'Potato Chips (1 packet)', calories: 280, protein: 3, carbs: 30, fats: 17, waste: 5, healthScore: 'high' },
+                { id: 'fruits_mixed', name: 'Mixed Fruits (1 cup)', calories: 80, protein: 1, carbs: 20, fats: 0, waste: 10, healthScore: 'healthy' },
+                { id: 'banana', name: 'Banana (1 piece)', calories: 105, protein: 1, carbs: 27, fats: 0, waste: 8, healthScore: 'healthy' },
+                { id: 'apple', name: 'Apple (1 piece)', calories: 95, protein: 0, carbs: 25, fats: 0, waste: 6, healthScore: 'healthy' },
+                { id: 'nuts_roasted', name: 'Roasted Nuts (handful)', calories: 180, protein: 6, carbs: 8, fats: 15, waste: 3, healthScore: 'healthy' },
+                { id: 'curd', name: 'Curd (1 cup)', calories: 100, protein: 6, carbs: 12, fats: 3, waste: 5, healthScore: 'healthy' },
+                { id: 'lassi', name: 'Lassi (1 glass)', calories: 180, protein: 8, carbs: 22, fats: 5, waste: 10, healthScore: 'healthy' }
+            ]
+        };
+
+        // Initialize dropdowns
+        function initializeDropdowns() {
+            ['breakfast', 'lunch', 'dinner', 'snack'].forEach(mealType => {
+                const select = document.getElementById(mealType);
+                foodDatabase[mealType].forEach(food => {
+                    const option = document.createElement('option');
+                    option.value = food.id;
+                    option.textContent = food.name;
+                    select.appendChild(option);
+                });
+            });
+        }
+
+        // Update nutrition preview
+        function updatePreview(mealType) {
+            const select = document.getElementById(mealType);
+            const preview = document.getElementById(`${mealType}-preview`);
+            const foodId = select.value;
+
+            if (!foodId) {
+                preview.innerHTML = '';
+                return;
+            }
+
+            const food = foodDatabase[mealType].find(f => f.id === foodId);
+            const statusClass = `status-${food.healthScore}`;
+            const statusIcon = food.healthScore === 'healthy' ? '🟢 Healthy Choice' :
+                              food.healthScore === 'moderate' ? '🟡 Moderate' :
+                              '🔴 High Calories';
+
+            preview.innerHTML = `
+                <div class="nutrition-preview ${statusClass}">
+                    <div style="font-weight: 600; margin-bottom: 0.5rem;">${statusIcon}</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.25rem; font-size: 0.75rem;">
+                        <div>Calories: ${food.calories}</div>
+                        <div>Protein: ${food.protein}g</div>
+                        <div>Carbs: ${food.carbs}g</div>
+                        <div>Fats: ${food.fats}g</div>
+                    </div>
+                    <div style="margin-top: 0.5rem; font-size: 0.75rem; opacity: 0.8;">Waste: ${food.waste}g</div>
+                </div>
+            `;
+        }
+
+        // Calculate results
+        function calculateResults() {
+            const meals = {
+                breakfast: document.getElementById('breakfast').value,
+                lunch: document.getElementById('lunch').value,
+                dinner: document.getElementById('dinner').value,
+                snack: document.getElementById('snack').value
+            };
+
+            const selectedMeals = Object.entries(meals).filter(([_, value]) => value);
+            if (selectedMeals.length === 0) {
+                alert('Please select at least one meal!');
+                return;
+            }
+
+            // Calculate totals
+            let totals = {
+                calories: 0,
+                protein: 0,
+                carbs: 0,
+                fats: 0,
+                waste: 0,
+                count: 0
+            };
+
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = '';
+
+            selectedMeals.forEach(([mealType, foodId]) => {
+                const food = foodDatabase[mealType].find(f => f.id === foodId);
+                if (!food) return;
+
+                totals.calories += food.calories;
+                totals.protein += food.protein;
+                totals.carbs += food.carbs;
+                totals.fats += food.fats;
+                totals.waste += food.waste;
+                totals.count++;
+
+                const badgeClass = `badge-${food.healthScore}`;
+                const badgeText = food.healthScore === 'healthy' ? '🟢 Healthy' :
+                                 food.healthScore === 'moderate' ? '🟡 Moderate' :
+                                 '🔴 High';
+
+                const row = `
+                    <tr>
+                        <td style="font-weight: 600; text-transform: capitalize;">${mealType}</td>
+                        <td>${food.name}</td>
+                        <td>${food.calories}</td>
+                        <td>${food.protein}g</td>
+                        <td>${food.carbs}g</td>
+                        <td>${food.fats}g</td>
+                        <td>${food.waste}g</td>
+                        <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+                    </tr>
+                `;
+                tableBody.innerHTML += row;
+            });
+
+            // Add total row
+            tableBody.innerHTML += `
+                <tr style="font-weight: 700; background: #f8fafc;">
+                    <td colspan="2">TOTAL</td>
+                    <td>${totals.calories}</td>
+                    <td>${totals.protein}g</td>
+                    <td>${totals.carbs}g</td>
+                    <td>${totals.fats}g</td>
+                    <td>${totals.waste}g</td>
+                    <td></td>
+                </tr>
+            `;
+
+            // Update summary cards
+            document.getElementById('totalCalories').textContent = totals.calories;
+            document.getElementById('totalProtein').textContent = totals.protein + 'g';
+            document.getElementById('totalWaste').textContent = totals.waste + 'g';
+            document.getElementById('mealCount').textContent = totals.count;
+
+            // Generate charts
+            generateCharts(totals, selectedMeals);
+
+            // Generate suggestions
+            generateSuggestions(totals, selectedMeals);
+
+            // Show results
+            document.getElementById('inputSection').style.display = 'none';
+            document.getElementById('resultsSection').classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        // Generate charts
+        let pieChart, barChart;
+        function generateCharts(totals, selectedMeals) {
+            // Destroy existing charts
+            if (pieChart) pieChart.destroy();
+            if (barChart) barChart.destroy();
+
+            // Pie Chart - Nutrient Distribution
+            const pieCtx = document.getElementById('pieChart').getContext('2d');
+            pieChart = new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Protein', 'Carbs', 'Fats'],
+                    datasets: [{
+                        data: [totals.protein * 4, totals.carbs * 4, totals.fats * 9],
+                        backgroundColor: ['#3b82f6', '#f59e0b', '#ef4444']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    }
+                }
+            });
+
+            // Bar Chart - Waste by Meal
+            const wasteData = selectedMeals.map(([mealType, foodId]) => {
+                const food = foodDatabase[mealType].find(f => f.id === foodId);
+                return {
+                    meal: mealType.charAt(0).toUpperCase() + mealType.slice(1),
+                    waste: food.waste,
+                    color: food.waste < 20 ? '#10b981' : food.waste < 35 ? '#f59e0b' : '#ef4444'
+                };
+            });
+
+            const barCtx = document.getElementById('barChart').getContext('2d');
+            barChart = new Chart(barCtx, {
+                type: 'bar',
+                data: {
+                    labels: wasteData.map(d => d.meal),
+                    datasets: [{
+                        label: 'Waste (g)',
+                        data: wasteData.map(d => d.waste),
+                        backgroundColor: wasteData.map(d => d.color)
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: { beginAtZero: true }
+                    }
+                }
+            });
+        }
+
+        // Generate AI suggestions
+        function generateSuggestions(totals, selectedMeals) {
+            const suggestions = [];
+
+            // Calorie suggestions
+            if (totals.calories > 2200) {
+                suggestions.push({
+                    priority: 'high',
+                    message: `Your daily intake is ${totals.calories} calories, which is above the recommended 2000 calories. Consider reducing portion sizes or choosing lighter options.`
+                });
+            } else if (totals.calories > 2000) {
+                suggestions.push({
+                    priority: 'medium',
+                    message: `Your daily intake is ${totals.calories} calories, slightly above the recommended limit. You're doing well, just watch your portions!`
+                });
+            }
+
+            // Protein suggestions
+            const proteinPercentage = (totals.protein * 4 / totals.calories) * 100;
+            if (proteinPercentage < 15) {
+                suggestions.push({
+                    priority: 'medium',
+                    message: `Your protein intake is low (${totals.protein}g). Add dal, paneer, eggs, or nuts to increase protein.`
+                });
+            }
+
+            // Waste suggestions
+            if (totals.waste > 150) {
+                suggestions.push({
+                    priority: 'high',
+                    message: `You're generating ${totals.waste}g of food waste today. Use vegetable peels for composting and practice portion control.`
+                });
+            } else if (totals.waste < 80) {
+                suggestions.push({
+                    priority: 'low',
+                    message: `Great job! You're only generating ${totals.waste}g of waste today. Keep up the sustainable eating habits! 🌟`
+                });
+            }
+
+            // Display suggestions
+            const suggestionsList = document.getElementById('suggestionsList');
+            suggestionsList.innerHTML = suggestions.length > 0
+                ? suggestions.map(s => `<div class="suggestion-item suggestion-${s.priority}">${s.message}</div>`).join('')
+                : '<div class="suggestion-item suggestion-low">Excellent! You\'ve made balanced food choices today. Keep up the good work! 🎉</div>';
+        }
+
+        // Reset app
+        function resetApp() {
+            ['breakfast', 'lunch', 'dinner', 'snack'].forEach(mealType => {
+                document.getElementById(mealType).value = '';
+                document.getElementById(`${mealType}-preview`).innerHTML = '';
+            });
+            document.getElementById('inputSection').style.display = 'block';
+            document.getElementById('resultsSection').classList.remove('active');
+            window.scrollTo(0, 0);
+        }
+
+        // Initialize on page load
+        window.onload = initializeDropdowns;
+    </script>
+</body>
+</html>
